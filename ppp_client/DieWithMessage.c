@@ -1,4 +1,4 @@
-#include "ppp.h"
+#include "ppp_client.h"
 void DieWithMessage(const char* msg, const char* msg2)
 { 
   if (msg) {

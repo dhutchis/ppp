@@ -25,25 +25,44 @@ int main(int argc, char* argv[]) {
 	
 	// Wait for a connection from the program on this machine that wants to communicate with the server on the other side of the PHP proxy
 	// Note: currently accepts a connection from anywhere.  Should I restrict to only connections from 127.0.0.1?
-    loop_server_sock = setupTCPServerSocket(php_port);
+    loop_server_sock = setupTCPServerSocket(loop_port);
 	if (loop_server_sock < 0)
-        DieWithMessage("SetupTCPServerSocket() failed on loop_port", loop_server_sock);
+        DieWithMessage("SetupTCPServerSocket() failed on loop_port", loop_port);
 	loop_connection_sock = acceptTCPConnection(loop_server_sock);
 	close(loop_server_sock); // just 1 connection
 	
 	// Send HTTP Request to PHP Server
 	char req_url[96]; // 56 base + 3*4+3 + 5 = 76, use 96 for safety
 	snprintf(req_url, 96, "http://www.cs.stevens.edu/~dhutchis/make_conn.php?n=%s&p=%s", name_server, php_port);
-	// DO HTTP REQUEST HERE
+	// DO HTTP REQUEST HERE ------------------
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if(!curl) {
+		fprintf(stderr, "no curl from curl_easy_init()\n");
+		close(loop_connection_sock);
+		return;
+	}
+	curl_easy_setopt(curl, CURLOPT_URL, req_url);
+
+	/* Perform the request, res will get the return code */ 
+	res = curl_easy_perform(curl);
+	/* Check for errors */ 
+	if(res != CURLE_OK)
+	  fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			  curl_easy_strerror(res));
+
+	/* always cleanup */ 
+	curl_easy_cleanup(curl);
 	
 	
 	
-	
-	// END HTTP REQUEST
+	// END HTTP REQUEST ------------------
 	// Listen on php_port for the connection from the php ppp proxy.	
 	php_server_sock = setupTCPServerSocket(php_port);
 	if (php_server_sock < 0)
-        DieWithMessage("setupTCPClientSocket() failed on php_port", php_server_sock);
+        DieWithMessage("setupTCPClientSocket() failed on php_port", php_port);
 	php_connection_sock = acceptTCPConnection(php_server_sock);
 	close(php_server_sock); // just 1 connection
 	
@@ -96,7 +115,7 @@ void* thread_main(void* arg)
 		ssize_t numBytesRcvd = recv(sock1, buffer, BUFSIZE, 0);
 		if (numBytesRcvd < 0)
 			DieWithPerrorMessage("recv() failed");
-		printf("Received: %d bytes\n",numBytesRcvd);
+		printf("First Received: %d bytes\n",numBytesRcvd);
 		
 		// Send received string and receive again until end of stream
 		while (numBytesRcvd > 0) { // 0 indicates end of stream
@@ -110,6 +129,7 @@ void* thread_main(void* arg)
 			numBytesRcvd = recv(sock1, buffer, BUFSIZE, 0);
 			if (numBytesRcvd < 0)
 				DieWithPerrorMessage("recv() failed");
+			printf("Received: %d bytes\n",numBytesRcvd);
 		}
 		close(sock1);
 		close(sock2); // this will interrupt the other process
