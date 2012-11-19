@@ -14,6 +14,6 @@ void DieWithMessage(const char* msg, const char* msg2)
 void DieWithPerrorMessage(const char* msg)
 {
   perror(msg);
-  fputc('\n',stderr); 
+  fputc('\n',stderr);
   exit(1);
 }

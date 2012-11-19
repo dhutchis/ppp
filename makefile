@@ -12,11 +12,11 @@ LIBPATH = -L. $(foreach DIR,$(SUBDIRS),-L./$(DIR))
 RM = rm -f
 # other files to include in the tar
 TARINCL = #README_dhutchis_ppp.pdf
-CC = gcc #-D NDEBUG  #-Wall -Wextra -ggdb3 #-D_GNU_SOURCE
+CC = gcc -D NDEBUG  #-Wall -Wextra -ggdb3 #-D_GNU_SOURCE
 
 .PHONY: default all test clean cleanall fclean fcleanall re reall tarall tarhelper debug
 
-default: debug
+default: server
 #	@echo Options: $(NAME) all server client debug_server debug_client clean cleanall fclean fcleanall tarall
 
 all: $(OBJ)

@@ -14,14 +14,13 @@ int main(int argc, char* argv[]) {
 	const char *name_server, *php_port, *loop_port;
 	int php_server_sock, loop_server_sock, php_connection_sock, loop_connection_sock;
 	
-    if (argc != 4) {
-        // eprintf("Usage: address1 port1 address2 port2\n");
-		// exit(1);
+    if (argc != 4)
       DieWithMessage("Usage: name_server php_port loop_port","");
-    }
     
 	name_server = argv[1]; php_port = argv[2]; loop_port = argv[3];
-	// SANITIZE INPUTS HERE
+	// Sanitize Inputs Here
+	if (strlen(name_server) > 15)
+		DieWithMessage("name_server is too long - max 15 characters", name_server);
 	
 	// Wait for a connection from the program on this machine that wants to communicate with the server on the other side of the PHP proxy
 	// Note: currently accepts a connection from anywhere.  Should I restrict to only connections from 127.0.0.1?
@@ -40,9 +39,9 @@ int main(int argc, char* argv[]) {
 
 	curl = curl_easy_init();
 	if(!curl) {
-		fprintf(stderr, "no curl from curl_easy_init()\n");
+		fprintf(stderr, "no curl from curl_easy_init(); libcurl broke\n");
 		close(loop_connection_sock);
-		return;
+		return 1;
 	}
 	curl_easy_setopt(curl, CURLOPT_URL, req_url);
 
@@ -78,7 +77,7 @@ int main(int argc, char* argv[]) {
     pthread_attr_setdetachstate(&thr_options, PTHREAD_CREATE_DETACHED);
 	
 	t_thread_args *thrarg1, *thrarg2;
-	pthread_t tid1=0, tid2=0;
+	pthread_t /*tid1=0,*/ tid2=0;
 	
 	// thr_args = (t_thread_args*)malloc(1*sizeof(t_thread_args));
 	// if (!thr_args) DieWithPerrorMessage("malloc() failed");

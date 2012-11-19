@@ -6,10 +6,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>     // offsetof macro
 #include <string.h>     // memset()
 #include <sys/types.h>  // size_t, pthread_t
-#include <sys/stat.h>
 #include <dirent.h>     // opendir(), ...
 #include <sys/socket.h>
 #include <netinet/in.h>	// in_addr_t, in_port_t
@@ -17,9 +15,6 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <unistd.h>     // close()
-#include <time.h>       // struct timespec, 
-#include <sys/select.h>
-#include <sys/time.h>
 
 #include <curl/curl.h>  // use -lcurl
 

@@ -1,10 +1,5 @@
 // from TCP/IP Sockets in C Practical Guide for Programmers, 2nd Edition (2009)
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-//#include "Practical.h"
+#include "ppp.h"
 
 int setupTCPClientSocket(const char *host, const char *service) {
   // Tell the system what kind(s) of address info we want

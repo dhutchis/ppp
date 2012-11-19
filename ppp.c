@@ -14,15 +14,12 @@ int main(int argc, char* argv[]) {
 	char *a1, *a2, *p1, *p2;
 	int sock1, sock2;
 	
-    if (argc != 5) {
-        // eprintf("Usage: address1 port1 address2 port2\n");
-		// exit(1);
-      DieWithMessage("Usage: address1 port1 address2 port2","");
-    }
-    
+    if (argc != 5) 
+		DieWithMessage("Usage: address1 port1 address2 port2","");
 	a1 = argv[1]; p1 = argv[2]; a2 = argv[3]; p2 = argv[4];
-	// SANITIZE INPUTS HERE
+	// Sanitize Inputs Here ---
 	
+	// make socket connections to both addresses
     sock1 = setupTCPClientSocket(a1, p1);
 	if (sock1 < 0)
         DieWithMessage("setupTCPClientSocket() failed to connect to", a1);
@@ -36,26 +33,20 @@ int main(int argc, char* argv[]) {
     if (rtnVal != 0)
         DieWithMessage("pthread_attr_init() failed", strerror(rtnVal));
     pthread_attr_setdetachstate(&thr_options, PTHREAD_CREATE_DETACHED);
-	
     
 	t_thread_args *thrarg1, *thrarg2;
-	pthread_t tid1=0, tid2=0;
+	pthread_t /*tid1=0,*/ tid2=0;
 	
-	// thr_args = (t_thread_args*)malloc(1*sizeof(t_thread_args));
-	// if (!thr_args) DieWithPerrorMessage("malloc() failed");
-	// thr_args->sock1 = clntSock;
 	thrarg1 = (t_thread_args*)malloc(sizeof(t_thread_args));
 	thrarg1->sock1 = sock1; thrarg1->sock2 = sock2; // thread_main will free
 	thrarg2 = (t_thread_args*)malloc(sizeof(t_thread_args));
 	thrarg2->sock1 = sock2; thrarg2->sock2 = sock1;
 	
-	// rtnVal = pthread_create(&tid1, &thr_options, &thread_main, thrarg1);
-	// if (rtnVal != 0)
-		// DieWithMessage("pthread_create() failed", strerror(rtnVal));
+	// use 2 threads - this one and another
+	// have each thread receive data on one socket and forward it to the other
 	rtnVal = pthread_create(&tid2, &thr_options, &thread_main, thrarg2);
 	if (rtnVal != 0)
-		DieWithMessage("pthread_create() failed", strerror(rtnVal));    
-	//printf("Created threads %lu and %lu\n",tid1,tid2);
+		DieWithMessage("pthread_create() failed", strerror(rtnVal));
 	
     pthread_attr_destroy(&thr_options);
 	(void)thread_main(thrarg1); // NEVER RETURN
@@ -64,8 +55,11 @@ int main(int argc, char* argv[]) {
 
 // recv on sock1, forward to sock2
 void* thread_main(void* arg)
-{
-	pthread_t tid = pthread_self(); printf("%lu is starting...\n",tid);
+{ 
+	#ifndef NDEBUG
+	pthread_t tid = pthread_self();
+	printf("%lu is starting...\n",tid);
+	#endif
     int sock1 = ((t_thread_args*)arg)->sock1;
     int sock2 = ((t_thread_args*)arg)->sock2;
     free(arg);
@@ -76,7 +70,9 @@ void* thread_main(void* arg)
 		ssize_t numBytesRcvd = recv(sock1, buffer, BUFSIZE, 0);
 		if (numBytesRcvd < 0)
 			DieWithPerrorMessage("recv() failed");
-		printf("Received: %d bytes\n",numBytesRcvd);
+		#ifndef NDEBUG
+		printf("Received: %d bytes\n",numBytesRcvd); // for logging
+		#endif
 		
 		// Send received string and receive again until end of stream
 		while (numBytesRcvd > 0) { // 0 indicates end of stream
@@ -92,8 +88,7 @@ void* thread_main(void* arg)
 				DieWithPerrorMessage("recv() failed");
 		}
 		close(sock1);
-		close(sock2); // this will interrupt the other process
+		close(sock2); // this will interrupt the other thread
 	}
-	//printf("%lu is exiting...\n",tid);
     return NULL;
 }
