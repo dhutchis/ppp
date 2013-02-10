@@ -1,0 +1,2 @@
+Please see **README_dhutchis_ppp.pdf**.
+This is a final project completed for CPE 490 Information Systems Engineering at Stevens.  It demonstrates a security vulnerability in the Stevens CS web hosting space available for students under their Linux Lab accounts.  If they wish, students can exploit the vulnerability to allow access to any server inside the Stevens network rom outside the Stevens network, effectively bypassing the Stevens firewall.  The key is to use the CS web hosting space as a "proxy server," since the Apache server there runs user-created PHP code.
