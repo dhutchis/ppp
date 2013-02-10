@@ -6,7 +6,7 @@ HEADER = ppp_client.h
 TMS = ppp_client.c #Test Main Source
 TMO = $(TMS:.c=.o) #Test Main Object
 TMN = ppp_client.exe #Test Main Name
-LIBS = -pthread -mt -lcurl #-lecho_server 
+LIBS = -pthread -mt -lcurl
 SUBDIRS = 
 LIBPATH = -L. $(foreach DIR,$(SUBDIRS),-L./$(DIR))
 RM = rm -f

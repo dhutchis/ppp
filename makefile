@@ -6,12 +6,12 @@ HEADER = ppp.h
 TMS = ppp.c #Test Main Source
 TMO = $(TMS:.c=.o) #Test Main Object
 TMN = ppp.exe #Test Main Name
-LIBS = -pthread -mt #-lecho_server 
-SUBDIRS = 
+LIBS = -pthread -mt
+SUBDIRS = ppp_client
 LIBPATH = -L. $(foreach DIR,$(SUBDIRS),-L./$(DIR))
 RM = rm -f
 # other files to include in the tar
-TARINCL = #README_dhutchis_ppp.pdf
+TARINCL = README_dhutchis_ppp.pdf
 CC = gcc -D NDEBUG  #-Wall -Wextra -ggdb3 #-D_GNU_SOURCE
 
 .PHONY: default all test clean cleanall fclean fcleanall re reall tarall tarhelper debug
